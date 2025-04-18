@@ -1,0 +1,35 @@
+/* Import normalize.css và Google Fonts */
+@import "normalize.css";
+@import url("https://fonts.googleapis.com/css2?family=Afacad+Flux:wght@100..1000&family=Roboto+Flex:opsz,wght@8..144,100..1000&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+
+:root {
+  --primary: #ffffff;
+  --Sidebar--width: 96px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+body {
+  font-family: "Afacad Flux", "Roboto", sans-serif;
+  font-size: 1.6rem;
+}
+
+a[href] {
+  text-decoration: none;
+  color: #000;
+}
+
+button,
+input,
+[tabindex] {
+  outline: none;
+  border: none;
+}

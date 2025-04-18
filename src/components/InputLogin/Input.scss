@@ -1,0 +1,57 @@
+.login-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: #f0f0f0;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  .input-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    color: #333;
+    font-size: 18px;
+  }
+
+  .custom-input {
+    flex: 1;
+    border: none;
+    background-color: transparent;
+    padding: 12px 8px;
+    font-size: 14px;
+
+    &:focus {
+      box-shadow: none;
+      outline: none;
+    }
+
+    // Loại bỏ border của antd
+    &.ant-input {
+      border: none;
+      box-shadow: none;
+    }
+
+    // Hiển thị đúng mật khẩu dạng dots
+    &[type="password"] {
+      font-family: sans-serif;
+      letter-spacing: 2px;
+    }
+  }
+
+  .password-icon {
+    cursor: pointer;
+    padding: 0 12px;
+    color: #777;
+    font-size: 18px;
+
+    &:hover {
+      color: #333;
+    }
+  }
+}
+.login-input-container:focus {
+  outline: none;
+  box-shadow: none;
+}
