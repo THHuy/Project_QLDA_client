@@ -84,7 +84,9 @@ function Login() {
                 <div className={cx("register")}>
                   <span className={cx("title-reg")}>Don't have account?</span>
                   <div className={cx("register-link")}>
-                    <a href="/register">Register</a>
+                    <div className={cx("abc")}>
+                      <a href="/register">Register</a>
+                    </div>
                   </div>
                 </div>
               </div>
