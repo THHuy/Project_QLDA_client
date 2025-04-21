@@ -2,6 +2,8 @@ import { Col, Row, Checkbox } from "antd";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import LoginInput from "~/components/InputLogin";
 import { useState } from "react";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "~/components/hook/useAuth/useAuth";
 import Button from "~/components/Button";
 import classNames from "classnames/bind";
 import styles from "./login.module.scss";
@@ -10,6 +12,28 @@ const cx = classNames.bind(styles);
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { currentUser, loginWithGoogle, loginWithGithub } = useAuth();
+  const [error, setError] = useState("");
+  const handleGoogleLogin = async () => {
+    try {
+      setError("");
+      await loginWithGoogle();
+    } catch (error) {
+      setError("Đăng nhập thất bại. Vui lòng thử lại.");
+    }
+  };
+  const handleGithubLogin = async () => {
+    try {
+      setError("");
+      await loginWithGithub();
+    } catch (error) {
+      setError("Đăng nhập GitHub thất bại. Vui lòng thử lại.");
+    }
+  };
+
+  if (currentUser) {
+    return <Navigate to="/dashboard" />;
+  }
   return (
     <div className={cx("container-fluid")}>
       <Row>
@@ -39,14 +63,23 @@ function Login() {
                   />
                 </div>
                 <div className={cx("gr-button")}>
-                  <Button
-                    children={"Login with Google"}
-                    logoBtn={"/assets/images/logo-google.png"}
-                  />
-                  <Button
-                    children={"Login with Github"}
-                    logoBtn={"/assets/images/logo-github.png"}
-                  />
+                  {" "}
+                  {error && <p className="error">{error}</p>}
+                  <div className={cx("btn-google")}>
+                    {" "}
+                    <Button
+                      onClick={handleGoogleLogin}
+                      children={"Login with Google"}
+                      logoBtn={"/assets/images/logo-google.png"}
+                    />
+                  </div>
+                  <div className={cx("btn-github")}>
+                    <Button
+                      onClick={handleGithubLogin}
+                      children={"Login with Github"}
+                      logoBtn={"/assets/images/logo-github.png"}
+                    />
+                  </div>
                 </div>
                 <div className={cx("separator")}>
                   <div className={cx("separator-line")}></div>
