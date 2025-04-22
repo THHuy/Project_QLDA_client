@@ -1,11 +1,10 @@
-import { useAuth } from "../hook/useAuth/useAuth";
+import { useAuth } from "~/components/hook/useAuth/useAuth";
 import classNames from "classnames/bind";
 import styles from "./Dashboard.scss";
 // import Aurora from "./Aurora";
 const cx = classNames.bind(styles);
 export function Dashboard() {
   const { currentUser, logout } = useAuth();
-  console.log(currentUser.profile)
   const handleLogout = async () => {
     try {
       await logout();

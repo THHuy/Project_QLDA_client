@@ -1,0 +1,22 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.widthSidebar {
+  display: flex;
+  min-height: 100vh;
+}
+
+.container {
+  height: 100vh;
+  display: flex;
+  z-index: 8;
+}
+
+.content {
+  flex: 1;
+  margin: 0 auto;
+  width: min(100% - var(--Sidebar--width), 2400px);
+  padding: 0 32px 0 10px;
+}

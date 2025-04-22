@@ -3,7 +3,7 @@ import config from "~/config";
 import Home from "~/pages/home";
 import Login from "~/pages/login";
 
-import { Dashboard } from "~/components/Dashboard";
+import { Dashboard } from "~/pages/Dashboard";
 const publicRoutes = [
   { path: config.routes.home, component: Home },
   { path: config.routes.login, component: Login },
