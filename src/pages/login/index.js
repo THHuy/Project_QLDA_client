@@ -32,7 +32,7 @@ function Login() {
   };
 
   if (currentUser) {
-    return <Navigate to="/dashboard" />;
+    return <Navigate to="/projects" />;
   }
   return (
     <div className={cx("container-fluid")}>

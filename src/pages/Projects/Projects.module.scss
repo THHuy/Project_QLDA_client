@@ -1,0 +1,33 @@
+.title {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 20px;
+  h1 {
+    font-weight: 400;
+  }
+}
+.btn-title {
+  display: flex;
+  justify-content: center;
+
+  button {
+    padding: 5px 10px;
+    border-radius: 5px;
+  }
+}
+
+.btn-create {
+  margin-right: 5px;
+  background-color: #1677ff;
+  color: #ffffff;
+  &:hover {
+    background-color: #4096ff;
+  }
+}
+.btn-temp {
+  background-color: transparent;
+  border: solid 1px #dcdddd;
+  &:hover {
+    background-color: #dcdddd;
+  }
+}
