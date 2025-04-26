@@ -22,7 +22,7 @@ function Sidebar() {
       icon: <UserOutlined />,
     },
     {
-      key: "sub2",
+      key: "2",
       label: "Project",
       icon: <RocketOutlined />,
       children: [
@@ -31,6 +31,11 @@ function Sidebar() {
           label: "Recent",
           type: "group",
           children: [
+            {
+              key: "sub5",
+              label: "P",
+              icon: <AlignLeftOutlined />,
+            },
             {
               key: "sub2",
               label: "View all projects",
@@ -41,7 +46,7 @@ function Sidebar() {
       ],
     },
     {
-      key: "sub3",
+      key: "3",
       label: "Dashboards",
       icon: <FontAwesomeIcon icon={faTable} />,
       children: [
@@ -66,10 +71,10 @@ function Sidebar() {
     sub2: "/projects",
     sub3: "/dashboard",
     sub4: "/teams",
+    sub5: "/projects/P",
   };
   const onClick = (e) => {
     if (routes[e.key]) {
-      console.log(routes);
       navigate(routes[e.key]);
     }
   };

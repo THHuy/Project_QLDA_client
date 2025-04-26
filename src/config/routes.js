@@ -5,6 +5,7 @@ const routes = {
   projects: "/projects",
   foryou: "/your-work",
   teams: "/teams",
+  projectsID: "/projects/P",
 };
 
 export default routes;
