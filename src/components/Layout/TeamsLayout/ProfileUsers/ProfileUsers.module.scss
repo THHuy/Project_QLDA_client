@@ -1,0 +1,18 @@
+.users-profile {
+  display: block;
+  border: #dcdddd 1px solid;
+  border-radius: 5px;
+  width: 150px;
+  text-align: center;
+  margin-top: 20px;
+  margin-right: 10px;
+  .avatar-profile {
+    padding-top: 10px;
+    border-radius: 50%;
+  }
+  h3 {
+    font-weight: 400;
+    padding-top: 20px;
+    padding-bottom: 30px;
+  }
+}

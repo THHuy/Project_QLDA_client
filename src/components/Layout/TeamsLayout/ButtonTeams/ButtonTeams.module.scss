@@ -1,0 +1,22 @@
+.btn-add {
+  color: #ffffff;
+  background-color: #1868db;
+  &:hover {
+    background-color: #1558bc;
+  }
+}
+.btn-w {
+  background-color: #ffffff;
+  border: #dcdddd 1px solid;
+  &:hover {
+    background-color: #f0f1f2;
+  }
+}
+.btn-users button {
+  border-radius: 5px;
+  margin-left: 10px;
+  padding: 10px 15px;
+  &:hover {
+    cursor: pointer;
+  }
+}
