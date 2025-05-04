@@ -1,0 +1,35 @@
+.info-user {
+  display: flex;
+  background-color: #f8f8f8;
+  padding: 10px;
+}
+
+.info-basic {
+  font-size: 12px;
+  .name-user {
+    font-size: 24px;
+    font-weight: 600;
+  }
+}
+.profile-logout button {
+  text-align: start;
+  background-color: transparent;
+  width: 100%;
+  padding: 10px;
+}
+.btn-profile {
+  display: flex;
+  align-items: center;
+  &:hover {
+    cursor: pointer;
+    background-color: #f8f8f8;
+  }
+}
+.btn-logout {
+  display: flex;
+  align-items: center;
+  &:hover {
+    cursor: pointer;
+    background-color: #f8f8f8;
+  }
+}

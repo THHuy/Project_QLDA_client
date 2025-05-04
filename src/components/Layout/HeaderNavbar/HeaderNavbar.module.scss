@@ -18,6 +18,14 @@
       background-color: #f0f1f2;
     }
   }
+  .btn-product {
+    padding: 10px;
+    border-radius: 5px;
+    background-color: transparent;
+    &:hover {
+      background-color: #f0f1f2;
+    }
+  }
   .icon {
     display: flex;
     justify-content: center;
