@@ -7,10 +7,12 @@ import {
 } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { auth, db, githubProvider } from "../services/firebase";
+
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null); // New state for profile
   const [loading, setLoading] = useState(true);
   const googleProvider = new GoogleAuthProvider();
 
@@ -19,7 +21,6 @@ export function AuthProvider({ children }) {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
-      // Lưu thông tin người dùng vào Firestore
       await setDoc(
         doc(db, "users", user.uid),
         {
@@ -32,23 +33,19 @@ export function AuthProvider({ children }) {
         },
         { merge: true }
       );
-
       return user;
     } catch (error) {
       console.error("Đăng nhập Google thất bại:", error);
       throw error;
     }
   };
+
   // Hàm đăng nhập bằng GitHub
   const loginWithGithub = async () => {
     try {
       const result = await signInWithPopup(auth, githubProvider);
       const user = result.user;
-
-      // GitHub có thể không cung cấp email trong một số trường hợp
       const email = user.email || `${user.uid}@github.user`;
-
-      // Lưu thông tin người dùng vào Firestore
       await setDoc(
         doc(db, "users", user.uid),
         {
@@ -63,7 +60,6 @@ export function AuthProvider({ children }) {
         },
         { merge: true }
       );
-
       return user;
     } catch (error) {
       console.error("Đăng nhập GitHub thất bại:", error);
@@ -95,9 +91,11 @@ export function AuthProvider({ children }) {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         const profile = await getUserProfile(user.uid);
-        setCurrentUser({ ...user, profile });
+        setCurrentUser(user); // Keep original Firebase User object
+        setUserProfile(profile); // Store profile separately
       } else {
         setCurrentUser(null);
+        setUserProfile(null);
       }
       setLoading(false);
     });
@@ -107,6 +105,7 @@ export function AuthProvider({ children }) {
 
   const value = {
     currentUser,
+    userProfile, // Expose profile separately
     loginWithGoogle,
     loginWithGithub,
     logout,

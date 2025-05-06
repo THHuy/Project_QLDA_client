@@ -1,4 +1,4 @@
-import { DatePicker, Input, Form, message } from "antd";
+import { DatePicker, Input, Form } from "antd";
 import classNames from "classnames/bind";
 import styles from "./CreateProduct.module.scss";
 import { useEffect } from "react"; // Add this import

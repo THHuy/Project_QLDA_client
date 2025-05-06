@@ -14,7 +14,6 @@ function Projects() {
           <h1>Projects</h1>
           <div className={cx("btn-title")}>
             <button className={cx("btn-create")}>Create project</button>
-            <button className={cx("btn-temp")}>Templates</button>
           </div>
         </div>
         <div className={cx("search")}>

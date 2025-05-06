@@ -4,6 +4,7 @@ const routes = {
   dashboard: "/dashboard",
   projects: "/projects",
   foryou: "/your-work",
+  foryouproduct: "/your-work/:productId",
   teams: "/teams",
   projectsID: "/projects/P",
 };

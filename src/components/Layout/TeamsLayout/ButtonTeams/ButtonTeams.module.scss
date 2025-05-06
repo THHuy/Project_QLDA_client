@@ -1,22 +1,154 @@
-.btn-add {
-  color: #ffffff;
-  background-color: #1868db;
-  &:hover {
-    background-color: #1558bc;
-  }
+.container-fluid {
+  padding: 0 15px;
 }
+
+.btn-users {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
 .btn-w {
-  background-color: #ffffff;
-  border: #dcdddd 1px solid;
+  padding: 8px 16px;
+  background-color: #f5f5f5;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  cursor: pointer;
+
   &:hover {
-    background-color: #f0f1f2;
+    background-color: #e6e6e6;
   }
 }
-.btn-users button {
-  border-radius: 5px;
-  margin-left: 10px;
-  padding: 10px 15px;
+
+.btn-add {
+  padding: 8px 16px;
+  background-color: #0052cc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+
   &:hover {
-    cursor: pointer;
+    background-color: #0747a6;
+  }
+}
+
+/* Modal Styling */
+.invite-modal {
+  :global(.ant-modal-header) {
+    border-bottom: 1px solid #f0f0f0;
+    padding: 16px 24px;
+  }
+
+  :global(.ant-modal-title) {
+    font-size: 20px;
+    font-weight: 500;
+  }
+
+  :global(.ant-modal-footer) {
+    border-top: 1px solid #f0f0f0;
+    padding: 12px 24px;
+  }
+
+  :global(.ant-btn-primary) {
+    background-color: #0052cc;
+
+    &:hover {
+      background-color: #0747a6;
+    }
+  }
+}
+
+/* Invitation Form Sections */
+.invite-section,
+.product-section {
+  margin-bottom: 24px;
+}
+
+.label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+/* Email Input Styling */
+.email-input-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  min-height: 40px;
+
+  &:focus-within {
+    border-color: #40a9ff;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+  }
+}
+
+.email-tag {
+  display: flex;
+  align-items: center;
+  background-color: #deebff;
+  color: #0747a6;
+  border: none;
+  margin: 2px;
+
+  .email-icon {
+    margin-right: 4px;
+    font-size: 12px;
+  }
+}
+
+.email-input {
+  border: none;
+  flex: 1;
+  min-width: 150px;
+
+  &:focus {
+    box-shadow: none;
+  }
+}
+
+/* Product Select Styling */
+.product-select {
+  width: 100%;
+}
+
+.no-products {
+  margin-top: 8px;
+  color: #ff4d4f;
+  font-size: 14px;
+}
+
+/* Loading Styles */
+.loading-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0;
+  color: #8c8c8c;
+}
+
+/* Terms Section */
+.terms-section {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.terms-text {
+  font-size: 12px;
+  color: #8c8c8c;
+  margin: 0;
+
+  a {
+    color: #0052cc;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
