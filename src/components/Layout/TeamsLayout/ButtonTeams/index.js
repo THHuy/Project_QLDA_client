@@ -13,9 +13,9 @@ import {
   doc,
   getDoc,
 } from "firebase/firestore";
-import { httpsCallable } from "firebase/functions";
 import { useAuth } from "~/components/hook/useAuth/useAuth";
-import { db, functions } from "~/components/services/firebase";
+import { db } from "~/components/services/firebase";
+import ButtonCreateTeams from "../ButtonCreateTeams";
 const cx = classNames.bind(styles);
 const { Option } = Select;
 
@@ -175,11 +175,31 @@ function ButtonTeams() {
 
       const invitations = await Promise.all(invitationPromises);
 
-      // Gọi Cloud Function
-      const sendInvitations = httpsCallable(functions, "sendTeamInvitations");
-      console.log("Calling sendTeamInvitations with:", invitations);
-      const result = await sendInvitations({ invitations });
-      console.log("Cloud Function result:", result);
+      console.log(
+        "Calling HTTP function sendTeamInvitations with:",
+        invitations
+      );
+      const httpFetch =
+        "https://us-central1-project-management-1a6a1.cloudfunctions.net/sendTeamInvitations";
+      const response = await fetch(httpFetch, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Gửi token xác thực nếu cần
+        },
+        body: JSON.stringify({
+          uid: currentUser.uid,
+          invitations: invitations,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Unknown error");
+      }
+
+      const result = await response.json();
+      console.log("HTTP function result:", result);
 
       message.success(
         `Đã gửi lời mời đến ${invitedEmails.length} ${
@@ -207,7 +227,7 @@ function ButtonTeams() {
     <div className={cx("container-fluid")}>
       <div className={cx("btn-users")}>
         <button className={cx("btn-w")}>Manage users</button>
-        <button className={cx("btn-w")}>Create team</button>
+        <ButtonCreateTeams />
         <button className={cx("btn-add")} onClick={showModal}>
           Add people
         </button>

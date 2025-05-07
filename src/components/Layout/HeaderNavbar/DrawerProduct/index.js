@@ -62,35 +62,35 @@ export function DrawerProduct() {
       setLoading(false);
     }
   }, [isModalOpen]);
+  const fetchProducts = async () => {
+    if (!currentUser) {
+      setProducts([]); // Nếu không có user, đặt danh sách rỗng
+      return;
+    }
+
+    try {
+      // Truy vấn Firestore: lấy các product có owner_id là currentUser.uid
+      const q = query(
+        collection(db, "products"),
+        where("owner_id", "==", currentUser.uid)
+      );
+      const querySnapshot = await getDocs(q);
+
+      // Lưu danh sách products vào state
+      const productList = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setProducts(productList);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      message.error("Failed to fetch products.");
+    }
+  };
   // Truy vấn products của currentUser
   useEffect(() => {
-    const fetchProducts = async () => {
-      if (!currentUser) {
-        setProducts([]); // Nếu không có user, đặt danh sách rỗng
-        return;
-      }
-
-      try {
-        // Truy vấn Firestore: lấy các product có owner_id là currentUser.uid
-        const q = query(
-          collection(db, "products"),
-          where("owner_id", "==", currentUser.uid)
-        );
-        const querySnapshot = await getDocs(q);
-
-        // Lưu danh sách products vào state
-        const productList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setProducts(productList);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-        message.error("Failed to fetch products.");
-      }
-    };
     fetchProducts();
-  }, [currentUser]); // Gọi lại khi currentUser thay đổi
+  }); // Gọi lại khi currentUser thay đổi
   const showModal = () => {
     setIsModalOpen(true);
   };
@@ -130,12 +130,9 @@ export function DrawerProduct() {
 
       // Save to Firestore 'products' collection
       await addDoc(collection(db, "products"), productData);
-
       message.success("Product created successfully!");
-      setTimeout(() => {
-        setIsModalOpen(false);
-        setLoading(false);
-      }, 1500);
+      await fetchProducts();
+      setIsModalOpen(false);
     } catch (error) {
       setLoading(false);
       console.error("Error adding product to Firestore:", error);
