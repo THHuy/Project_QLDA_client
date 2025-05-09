@@ -1,0 +1,27 @@
+.header-tab {
+  display: flex;
+  text-align: center;
+  align-items: center;
+  button {
+    font-size: 16px;
+    background-color: transparent;
+    padding: 20px 20px;
+  }
+}
+
+.btn-sw-product:hover {
+  border-radius: 50%;
+  color: #0052cc;
+  background-color: #e1edff;
+}
+.btn-setting:hover {
+  border-radius: 5px;
+  background-color: #dddee1;
+}
+.dash {
+  background-color: black;
+  height: 30px;
+  width: 1px;
+  margin-left: 10px;
+  margin-right: 10px;
+}

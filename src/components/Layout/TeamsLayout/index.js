@@ -5,6 +5,7 @@ import classNames from "classnames/bind";
 import styles from "./TeamsLayout.module.scss";
 import ProfileUsers from "./ProfileUsers";
 import ButtonTeams from "./ButtonTeams";
+import TeamsShow from "./TeamsShow";
 const cx = classNames.bind(styles);
 function TeamsLayout() {
   return (
@@ -29,7 +30,7 @@ function TeamsLayout() {
           <ProfileUsers />
         </div>
         <div className={cx("us-teams")}>
-          <h2>Teams</h2>
+          <TeamsShow />
         </div>
       </div>
     </div>

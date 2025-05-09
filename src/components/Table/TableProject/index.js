@@ -1,102 +1,178 @@
-import { Table, Popover } from "antd";
+import { useEffect, useState } from "react";
+import { Table, Tag, Button, message, Popconfirm } from "antd";
 import classNames from "classnames/bind";
 import styles from "./TableProject.module.scss";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEllipsis } from "@fortawesome/free-solid-svg-icons";
-import { useState } from "react";
+import { db } from "~/components/services/firebase";
+import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
+import Swal from "sweetalert2";
 
 const cx = classNames.bind(styles);
 
 function TableProject() {
-  const [openPopoverKey, setOpenPopoverKey] = useState(null);
+  const [projects, setProjects] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleOpenChange = (newOpen, recordKey) => {
-    setOpenPopoverKey(newOpen ? recordKey : null);
+  // Lấy tất cả project từ Firestore
+  useEffect(() => {
+    const fetchProjects = async () => {
+      setLoading(true);
+      try {
+        const querySnapshot = await getDocs(collection(db, "project"));
+        const data = querySnapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+        setProjects(data);
+      } catch (err) {
+        message.error("Cannot fetch projects: " + (err.message || ""));
+      }
+      setLoading(false);
+    };
+    fetchProjects();
+  }, []);
+
+  // Lấy tất cả users để ánh xạ manager_id -> displayName
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "users"));
+        const data = querySnapshot.docs.map((doc) => ({
+          ...doc.data(),
+          uid: doc.id,
+        }));
+        setUsers(data);
+      } catch (err) {
+        message.error("Cannot fetch users: " + (err.message || ""));
+      }
+    };
+    fetchUsers();
+  }, []);
+
+  // Helper: lấy tên user từ uid
+  const getManagerName = (uid) => {
+    const user = users.find((u) => u.uid === uid);
+    return user ? user.displayName : uid;
   };
 
+  const handleStatusChange = async (record, newStatus) => {
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, "project", record.id), {
+        status_id: newStatus,
+      });
+      setProjects((prev) =>
+        prev.map((p) =>
+          p.id === record.id ? { ...p, status_id: newStatus } : p
+        )
+      );
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "success",
+        title: "Project status updated!",
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+        customClass: {
+          popup: "swal2-toast-custom",
+        },
+      });
+    } catch (err) {
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "error",
+        title: "Update failed: " + (err.message || ""),
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+        customClass: {
+          popup: "swal2-toast-custom",
+        },
+      });
+    }
+    setLoading(false);
+  };
+
+  // Định nghĩa cột cho bảng
   const columns = [
-    {
-      title: "Name",
-      dataIndex: "name",
-      sorter: {
-        compare: (a, b) => a.name.length - b.name.length,
-        multiple: 3,
-      },
-    },
-    {
-      title: "Key",
-      dataIndex: "keyName",
-      sorter: {
-        compare: (a, b) => a.keyName.length - b.keyName.length,
-        multiple: 3,
-      },
-    },
+    { title: "Project Name", dataIndex: "project_name", key: "project_name" },
     {
       title: "Lead",
-      dataIndex: "lead",
-      sorter: {
-        compare: (a, b) => a.lead.length - b.lead.length,
-        multiple: 2,
-      },
+      dataIndex: "manager_id",
+      key: "manager_id",
+      render: (manager_id) => getManagerName(manager_id),
+    },
+    { title: "Start Date", dataIndex: "start_date", key: "start_date" },
+    { title: "End Date", dataIndex: "end_date", key: "end_date" },
+    {
+      title: "Status",
+      dataIndex: "status_id",
+      key: "status_id",
+      render: (status_id) =>
+        status_id === 1 ? (
+          <Tag color="green">ACTIVE</Tag>
+        ) : (
+          <Tag color="red">INACTIVE</Tag>
+        ),
     },
     {
-      title: "More Actions",
-      dataIndex: "",
-      key: "x",
+      title: "Created At",
+      dataIndex: "created_at",
+      key: "created_at",
+      render: (created_at) =>
+        created_at && created_at.toDate
+          ? created_at.toDate().toLocaleString()
+          : String(created_at),
+    },
+    {
+      title: "Action",
+      key: "action",
       render: (_, record) => (
-        <Popover
-          trigger="click"
-          open={openPopoverKey === record.key}
-          onOpenChange={(newOpen) => handleOpenChange(newOpen, record.key)}
-          content={
-            <div className={cx("actions")}>
-              <a href="/project-setting">Project Setting</a>
-              <a href="/move-trash">Move to trash</a>
-            </div>
-          }
-        >
-          <div className={cx("popup-dot")}>
-            <FontAwesomeIcon icon={faEllipsis} />
-          </div>
-        </Popover>
+        <>
+          <Button
+            type="link"
+            onClick={() => alert(`View project ${record.project_name}`)}
+          >
+            View
+          </Button>
+          {record.status_id === 1 ? (
+            <Popconfirm
+              title="Set project to INACTIVE?"
+              onConfirm={() => handleStatusChange(record, 0)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button danger type="link" loading={loading}>
+                Set Inactive
+              </Button>
+            </Popconfirm>
+          ) : (
+            <Popconfirm
+              title="Set project to ACTIVE?"
+              onConfirm={() => handleStatusChange(record, 1)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button type="link" style={{ color: "green" }} loading={loading}>
+                Set Active
+              </Button>
+            </Popconfirm>
+          )}
+        </>
       ),
     },
   ];
 
-  const data = [
-    {
-      key: "1",
-      name: "Phân tích thiết kế",
-      keyName: "Pttk",
-      lead: "Huy Truong",
-    },
-    {
-      key: "2",
-      name: "Thiết kế giao diện",
-      keyName: "Tkgd",
-      lead: "Huy Truong",
-    },
-    {
-      key: "3",
-      name: "Lập trình phần mềm",
-      keyName: "Ltpm",
-      lead: "Huy Truong",
-    },
-    {
-      key: "4",
-      name: "Kiểm thử",
-      keyName: "Kt",
-      lead: "Huy Truong",
-    },
-  ];
-
-  const onChange = (pagination, filters, sorter, extra) => {
-    console.log("params", pagination, filters, sorter, extra);
-  };
-
   return (
     <div className={cx("container")}>
-      <Table columns={columns} dataSource={data} onChange={onChange} />
+      <Table
+        columns={columns}
+        dataSource={projects}
+        rowKey="id"
+        loading={loading}
+      />
     </div>
   );
 }

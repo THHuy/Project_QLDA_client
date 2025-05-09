@@ -6,6 +6,9 @@ const routes = {
   foryou: "/your-work",
   foryouproduct: "/your-work/:productId",
   teams: "/teams",
+  user: "/o/:productId/user",
+  overview: "/o/:productId/overview",
+  managerTeam: "/o/:productId/teams",
   projectsID: "/projects/P",
 };
 

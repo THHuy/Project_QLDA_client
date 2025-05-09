@@ -1,6 +1,7 @@
 import classNames from "classnames/bind";
 import styles from "./Sidebar.module.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useLocation } from "react-router-dom";
 import { faTable } from "@fortawesome/free-solid-svg-icons";
 import {
   UserOutlined,
@@ -15,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 const cx = classNames.bind(styles);
 function Sidebar() {
   const navigate = useNavigate();
+  const location = useLocation();
   const items = [
     {
       key: "sub1",
@@ -52,7 +54,7 @@ function Sidebar() {
       children: [
         {
           key: "g1",
-          label: "Once you visit or create dashboards, they’ll show up here.",
+          label: "Once you visit or create dashboards, they'll show up here.",
           type: "group",
           children: [
             {
@@ -73,6 +75,15 @@ function Sidebar() {
     sub4: "/teams",
     sub5: "/projects/P",
   };
+  const getActiveKey = () => {
+    const path = location.pathname;
+    if (path.endsWith("user")) return "sub1";
+    if (path.endsWith("teams")) return "sub4";
+    if (path.endsWith("projects")) return "sub2";
+    if (path.endsWith("dashboard")) return "sub3";
+    if (path.endsWith("P")) return "sub5";
+    return "sub1"; // Mặc định
+  };
   const onClick = (e) => {
     if (routes[e.key]) {
       navigate(routes[e.key]);
@@ -83,8 +94,8 @@ function Sidebar() {
       <Menu
         onClick={onClick}
         style={{ width: 256 }}
-        defaultSelectedKeys={["sub2"]}
-        defaultOpenKeys={["sub2"]}
+        selectedKeys={[getActiveKey()]}
+        defaultOpenKeys={[getActiveKey()]}
         mode="inline"
         items={items}
       />

@@ -1,15 +1,25 @@
 import { Input, Button, Modal, message, Empty, Avatar, Menu } from "antd";
-import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useRef, useEffect, useCallback } from "react";
+// import { useNavigate } from "react-router-dom";
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import CreateProduct from "./CreateProduct";
 import classNames from "classnames/bind";
 import styles from "./DrawerProduct.module.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGear, faHouse } from "@fortawesome/free-solid-svg-icons";
-import { collection, addDoc, where, query, getDocs } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  where,
+  query,
+  getDocs,
+  doc,
+  setDoc,
+  getDoc,
+} from "firebase/firestore";
 import { useAuth } from "~/components/hook/useAuth/useAuth";
 import { db } from "~/components/services/firebase";
+
 const cx = classNames.bind(styles);
 
 export function DrawerProduct() {
@@ -18,11 +28,12 @@ export function DrawerProduct() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [products, setProducts] = useState([]);
   const formRef = useRef(null);
-  const navigate = useNavigate(); // Khởi tạo useNavigate
+  // const navigate = useNavigate();
+
   const items = products.map((product, index) => ({
-    key: `sub${index + 1}`, // Tạo key dạng sub1, sub2, ...
+    key: `sub${index + 1}`,
     icon: <Avatar shape="square">{product.product_name[0]}</Avatar>,
-    label: product.product_name, // Sử dụng product_name làm label
+    label: product.product_name,
     children: [
       {
         key: `sub1`,
@@ -33,7 +44,7 @@ export function DrawerProduct() {
             key: `${index + 1}-1-1`,
             icon: <FontAwesomeIcon icon={faHouse} />,
             label: "Home",
-            productId: product.product_id,
+            _productid: product.id, // Custom property, not a DOM prop
           },
           {
             key: `${index + 1}-1-2`,
@@ -46,57 +57,84 @@ export function DrawerProduct() {
   }));
 
   const onClick = (e) => {
-    // Kiểm tra nếu mục được nhấn là "Home"
-    const clickedItem = items
-      .flatMap((item) => item.children?.[0]?.children || [])
-      .find((child) => child.key === e.key);
-    if (clickedItem?.label === "Home" && clickedItem?.productId) {
-      // Điều hướng đến trang với productId
-      setIsModalOpen(false);
-      navigate(`/your-work/${clickedItem.productId}`);
+    // Extract the product index from the key (e.g., "1-1-1" -> index 0)
+    const keyParts = e.key.split("-");
+    const productIndex = parseInt(keyParts[0]) - 1; // e.g., "1-1-1" -> 0
+    const product = products[productIndex];
+
+    // Check if the clicked item is "Home" and has a valid product
+    if (
+      product &&
+      items[productIndex]?.children[0]?.children[0]?.label === "Home"
+    ) {
+      localStorage.setItem(`selectedProduct-${currentUser.uid}`, product.id);
+      // navigate(`/your-work/${product.id}`);
+      window.location.reload();
     }
   };
-  // Reset loading state when modal closes
+
   useEffect(() => {
     if (!isModalOpen) {
       setLoading(false);
     }
   }, [isModalOpen]);
-  const fetchProducts = async () => {
+
+  const fetchProducts = useCallback(async () => {
     if (!currentUser) {
-      setProducts([]); // Nếu không có user, đặt danh sách rỗng
+      setProducts([]);
       return;
     }
 
     try {
-      // Truy vấn Firestore: lấy các product có owner_id là currentUser.uid
-      const q = query(
+      // 1. Lấy tất cả product mà user là owner
+      const ownerQ = query(
         collection(db, "products"),
         where("owner_id", "==", currentUser.uid)
       );
-      const querySnapshot = await getDocs(q);
-
-      // Lưu danh sách products vào state
-      const productList = querySnapshot.docs.map((doc) => ({
+      const ownerSnapshot = await getDocs(ownerQ);
+      const ownerProducts = ownerSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-      setProducts(productList);
+
+      // 2. Lấy tất cả product_id mà user là thành viên (status Active)
+      const memberQ = query(
+        collection(db, "product_members"),
+        where("user_id", "==", currentUser.uid),
+        where("status", "==", "Active")
+      );
+      const memberSnapshot = await getDocs(memberQ);
+      const memberProductIds = memberSnapshot.docs.map(
+        (doc) => doc.data().product_id
+      );
+
+      // 3. Lấy thông tin product tương ứng (trừ product đã là owner)
+      const memberProducts = [];
+      for (const pid of memberProductIds) {
+        if (!ownerProducts.find((p) => p.id === pid)) {
+          const prodDoc = await getDoc(doc(db, "products", pid));
+          if (prodDoc.exists()) {
+            memberProducts.push({ id: prodDoc.id, ...prodDoc.data() });
+          }
+        }
+      }
+
+      setProducts([...ownerProducts, ...memberProducts]);
     } catch (error) {
       console.error("Error fetching products:", error);
       message.error("Failed to fetch products.");
     }
-  };
-  // Truy vấn products của currentUser
+  }, [currentUser]);
+
   useEffect(() => {
     fetchProducts();
-  }); // Gọi lại khi currentUser thay đổi
+  }, [fetchProducts]);
+
   const showModal = () => {
     setIsModalOpen(true);
   };
 
   const handleOk = () => {
-    // Trigger form submission programmatically
     if (formRef.current) {
       formRef.current.submit();
     }
@@ -118,18 +156,25 @@ export function DrawerProduct() {
         return;
       }
 
-      // Convert release_date (Moment.js object) to Firestore Timestamp
       const productData = {
         ...values,
         release_date: values.release_date
           ? values.release_date.toDate().toISOString()
           : null,
         created_at: new Date().toISOString(),
-        owner_id: currentUser.uid, // Change from owner_id to createdBy
+        owner_id: currentUser.uid,
       };
+      // 1. Tạo product mới và lấy reference
+      const productRef = await addDoc(collection(db, "products"), productData);
+      // 2. Thêm người dùng hiện tại vào product_members với vai trò admin
+      await setDoc(doc(collection(db, "product_members")), {
+        product_id: productRef.id,
+        user_id: currentUser.uid,
+        role_in_product: "Admin",
+        joined_at: new Date().toISOString(),
+        status: "Active",
+      });
 
-      // Save to Firestore 'products' collection
-      await addDoc(collection(db, "products"), productData);
       message.success("Product created successfully!");
       await fetchProducts();
       setIsModalOpen(false);

@@ -1,0 +1,17 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+  padding: 8px 0;
+}
+.action-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  color: #1a237e;
+  font-size: 15px;
+  transition: background 0.2s;
+  &:hover {
+    background: #f0f0f0;
+    color: #1976d2;
+  }
+}

@@ -1,5 +1,5 @@
 import { Modal, Input, message, Spin, Select, Tag } from "antd";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import classNames from "classnames/bind";
 import styles from "./ButtonTeams.module.scss";
 import { CloseCircleOutlined } from "@ant-design/icons";
@@ -13,9 +13,11 @@ import {
   doc,
   getDoc,
 } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "~/components/hook/useAuth/useAuth";
 import { db } from "~/components/services/firebase";
 import ButtonCreateTeams from "../ButtonCreateTeams";
+import { getUserProduct } from "~/utils/productStorage";
 const cx = classNames.bind(styles);
 const { Option } = Select;
 
@@ -28,7 +30,8 @@ function ButtonTeams() {
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isProductsLoading, setIsProductsLoading] = useState(false);
-
+  const navigate = useNavigate();
+  const buttonCreateTeamsRef = useRef();
   // Fetch products of current user
   const fetchProducts = useCallback(async () => {
     if (!currentUser) {
@@ -222,12 +225,40 @@ function ButtonTeams() {
     setInvitedEmails([]);
     setEmailInput("");
   };
+  const hanleClickMangagerPage = () => {
+    const idProduct = getUserProduct(currentUser.uid);
+    navigate(`/o/${idProduct}/user`);
+  };
 
+  // Lấy role của currentUser trong product hiện tại
+  const [userRole, setUserRole] = useState("");
+  useEffect(() => {
+    const checkRole = async () => {
+      const productId = getUserProduct(currentUser.uid);
+      if (!productId || !currentUser) return setUserRole("");
+      const q = query(
+        collection(db, "product_members"),
+        where("product_id", "==", productId),
+        where("user_id", "==", currentUser.uid)
+      );
+      const snapshot = await getDocs(q);
+      if (!snapshot.empty) {
+        setUserRole(snapshot.docs[0].data().role_in_product);
+      } else {
+        setUserRole("");
+      }
+    };
+    checkRole();
+  }, [currentUser]);
   return (
     <div className={cx("container-fluid")}>
       <div className={cx("btn-users")}>
-        <button className={cx("btn-w")}>Manage users</button>
-        <ButtonCreateTeams />
+        {userRole === "Admin" && (
+          <button className={cx("btn-w")} onClick={hanleClickMangagerPage}>
+            Manage users
+          </button>
+        )}
+        <ButtonCreateTeams ref={buttonCreateTeamsRef} userRole={userRole} />
         <button className={cx("btn-add")} onClick={showModal}>
           Add people
         </button>
