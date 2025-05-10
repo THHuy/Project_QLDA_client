@@ -8,23 +8,35 @@ import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { useAuth } from "~/components/hook/useAuth/useAuth";
 import DrawerProduct from "./DrawerProduct";
 import LogoutHeader from "./LogoutHeader";
+import CreateIssueModal from "../../Modal/CreateIssueModal";
 import classNames from "classnames/bind";
 import styles from "./HeaderNavbar.module.scss";
-// import Aurora from "./Aurora";
 const cx = classNames.bind(styles);
+
 function HeaderNavbar() {
   const { currentUser } = useAuth();
-  const [open, setOpen] = useState(false);
+  const [openPopover, setOpenPopover] = useState(false);
   const [openDrawer, setOpenDrawer] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
   const showDrawer = () => {
     setOpenDrawer(true);
   };
-  const onClose = () => {
+  const onCloseDrawer = () => {
     setOpenDrawer(false);
   };
-  const handleOpenChange = (newOpen) => {
-    setOpen(newOpen);
+  const handleOpenPopoverChange = (newOpen) => {
+    setOpenPopover(newOpen);
   };
+
+  const showCreateIssueModal = () => {
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCloseCreateIssueModal = () => {
+    setIsCreateModalOpen(false);
+  };
+
   const textEmail = <span>{currentUser?.email}</span>;
   const contentLogout = <LogoutHeader />;
   return (
@@ -44,7 +56,7 @@ function HeaderNavbar() {
           title="PRODUCT"
           placement="left"
           closable={false}
-          onClose={onClose}
+          onClose={onCloseDrawer}
           open={openDrawer}
           key="left"
         >
@@ -61,7 +73,11 @@ function HeaderNavbar() {
           placeholder="Search"
           prefix={<SearchOutlined />}
         />
-        <Button type="primary" icon={<PlusOutlined />}>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={showCreateIssueModal}
+        >
           Create
         </Button>
       </div>
@@ -80,18 +96,26 @@ function HeaderNavbar() {
         <Popover
           content={contentLogout}
           trigger="click"
-          open={open}
-          onOpenChange={handleOpenChange}
+          open={openPopover}
+          onOpenChange={handleOpenPopoverChange}
         >
           <Tooltip placement="bottom" title={textEmail} mouseEnterDelay={0.5}>
             <img
-              src={currentUser.photoURL}
+              src={currentUser?.photoURL || "/assets/images/default-avatar.png"}
               alt="Ảnh đại diện"
               className={cx("avatar")}
             />
           </Tooltip>
         </Popover>
       </div>
+
+      {currentUser && (
+        <CreateIssueModal
+          open={isCreateModalOpen}
+          onClose={handleCloseCreateIssueModal}
+          currentUser={currentUser}
+        />
+      )}
     </div>
   );
 }

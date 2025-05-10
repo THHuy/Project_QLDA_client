@@ -1,0 +1,138 @@
+.calendar-page-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%; // Hoặc chiều cao cụ thể
+  padding: 20px;
+  background-color: #f0f2f5;
+
+  .calendar-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    .search-input {
+      margin-right: 10px;
+      width: 200px;
+    }
+
+    .filter-select {
+      margin-right: 10px;
+      width: 150px;
+    }
+
+    .calendar-controls {
+      margin-left: auto; // Đẩy các nút điều khiển sang phải
+      display: flex;
+      align-items: center;
+
+      button {
+        margin-left: 8px;
+      }
+      span {
+        margin: 0 8px;
+        font-weight: 500;
+      }
+    }
+  }
+
+  .calendar-main-content {
+    display: flex;
+    flex-grow: 1;
+    gap: 20px; // Khoảng cách giữa lưới lịch và sidebar
+
+    .calendar-grid {
+      flex-grow: 1;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      // Cần thêm style cho lưới lịch thực tế (ví dụ: react-big-calendar)
+      p {
+        text-align: center;
+        color: #888;
+        font-size: 1.2em;
+      }
+    }
+
+    .unscheduled-work-sidebar {
+      width: 300px; // Độ rộng của sidebar
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+
+      .sidebar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+
+        h3 {
+          margin: 0;
+          font-size: 1.1em;
+        }
+      }
+
+      p {
+        font-size: 0.9em;
+        color: #555;
+        margin-bottom: 15px;
+      }
+
+      .search-input {
+        margin-bottom: 15px;
+      }
+
+      .sidebar-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+
+        .filter-select-sidebar {
+          width: calc(100% - 80px); // Điều chỉnh độ rộng nếu cần
+        }
+      }
+
+      .work-items-list {
+        flex-grow: 1;
+        overflow-y: auto; // Cho phép cuộn nếu danh sách dài
+
+        .work-item {
+          padding: 10px;
+          border: 1px solid #eee;
+          border-radius: 4px;
+          margin-bottom: 10px;
+          cursor: grab; // Cho biết có thể kéo thả
+          background-color: #f9f9f9;
+
+          &:hover {
+            background-color: #f0f0f0;
+          }
+
+          .task-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 5px;
+            font-size: 0.85em;
+
+            .status-tag {
+              padding: 2px 6px;
+              background-color: #e6f7ff;
+              border: 1px solid #91d5ff;
+              border-radius: 4px;
+              color: #1890ff;
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -9,7 +9,7 @@ const routes = {
   user: "/o/:productId/user",
   overview: "/o/:productId/overview",
   managerTeam: "/o/:productId/teams",
-  projectsID: "/projects/P",
+  projectsID: "/projects/id/:projectId/:tabSlug",
 };
 
 export default routes;

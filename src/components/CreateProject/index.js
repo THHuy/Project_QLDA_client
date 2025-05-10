@@ -1,7 +1,7 @@
 import { useState } from "react";
 import classNames from "classnames/bind";
 import styles from "./CreateProject.module.scss";
-import { Modal, Form, Input, Select, DatePicker, Button } from "antd";
+import { Modal, Form, Input, Select, DatePicker, Button, message } from "antd";
 import { db } from "~/components/services/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { useAuth } from "~/components/hook/useAuth/useAuth";
@@ -23,16 +23,18 @@ const statusOptions = [
   { label: "INACTIVE", value: "INACTIVE" },
 ];
 
-function CreateProject({ open, onCancel }) {
-  const { currentUser } = useAuth(); // Lấy user hiện tại
+function CreateProject({ open, onCancel, onProjectCreated }) {
+  const { currentUser } = useAuth();
   const [form] = Form.useForm();
   const [duration, setDuration] = useState(1);
   const [startDate, setStartDate] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const statusMap = {
     ACTIVE: 1,
     INACTIVE: 0,
   };
-  // Tính end date nếu không phải custom
+
   const getEndDate = () => {
     if (startDate && duration !== "custom") {
       return dayjs(startDate).add(duration, "week");
@@ -41,26 +43,45 @@ function CreateProject({ open, onCancel }) {
   };
 
   const onFinish = async (values) => {
+    if (!currentUser) {
+      message.error("You must be logged in to create a project.");
+      return;
+    }
+    setIsSubmitting(true);
     try {
       const product_id = await getUserProduct(currentUser.uid);
+      if (!product_id) {
+        message.error("No active product selected. Cannot create project.");
+        setIsSubmitting(false);
+        return;
+      }
       const manager_id = currentUser.uid;
+
       await addDoc(collection(db, "project"), {
         project_name: values.name,
         product_id,
         manager_id,
-        start_date: values.startDate.format("YYYY-MM-DD"),
+        start_date: values.startDate.format("YYYY-MM-DD HH:mm:ss"),
         end_date:
           duration !== "custom"
-            ? getEndDate().format("YYYY-MM-DD")
-            : values.endDate.format("YYYY-MM-DD"),
+            ? getEndDate().format("YYYY-MM-DD HH:mm:ss")
+            : values.endDate.format("YYYY-MM-DD HH:mm:ss"),
         status_id: statusMap[values.status],
         created_at: serverTimestamp(),
       });
-      onCancel(); // Đóng modal
+      message.success("Project created successfully!");
+      if (onProjectCreated) {
+        onProjectCreated();
+      }
+      onCancel();
       form.resetFields();
+      setStartDate(null);
+      setDuration(1);
     } catch (error) {
       console.error("Error adding project: ", error);
+      message.error("Failed to create project: " + (error.message || ""));
     }
+    setIsSubmitting(false);
   };
   return (
     <Modal title="Create Project" open={open} onCancel={onCancel} footer={null}>
@@ -69,7 +90,9 @@ function CreateProject({ open, onCancel }) {
           <Form.Item
             label="Project Name"
             name="name"
-            rules={[{ required: true }]}
+            rules={[
+              { required: true, message: "Please input the project name!" },
+            ]}
           >
             <Input />
           </Form.Item>
@@ -85,19 +108,36 @@ function CreateProject({ open, onCancel }) {
           <Form.Item
             label="Start Date"
             name="startDate"
-            rules={[{ required: true }]}
+            rules={[
+              { required: true, message: "Please select the start date!" },
+            ]}
           >
             <DatePicker
+              showTime
+              format="YYYY-MM-DD HH:mm:ss"
               style={{ width: "100%" }}
               onChange={(date) => setStartDate(date)}
             />
           </Form.Item>
-          <Form.Item label="End Date" name="endDate">
+          <Form.Item
+            label="End Date"
+            name="endDate"
+            rules={[
+              {
+                required: duration === "custom",
+                message: "Please select the end date for custom duration!",
+              },
+            ]}
+          >
             <DatePicker
+              showTime
+              format="YYYY-MM-DD HH:mm:ss"
               style={{ width: "100%" }}
               disabled={duration !== "custom"}
               value={
-                duration !== "custom" && getEndDate() ? getEndDate() : undefined
+                duration !== "custom" && getEndDate()
+                  ? getEndDate()
+                  : form.getFieldValue("endDate")
               }
               onChange={(date) => {
                 if (duration === "custom") {
@@ -106,9 +146,8 @@ function CreateProject({ open, onCancel }) {
               }}
             />
           </Form.Item>
-          {/* Các trường khác nếu cần */}
           <Form.Item>
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" htmlType="submit" loading={isSubmitting}>
               Create
             </Button>
           </Form.Item>
