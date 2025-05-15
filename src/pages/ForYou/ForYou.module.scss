@@ -1,0 +1,210 @@
+.container-fluid {
+    padding: 24px;
+    background-color: #f4f5f7;
+    min-height: 100vh;
+
+    h2 {
+        margin-bottom: 24px;
+        color: #172b4d;
+        font-size: 24px;
+        font-weight: 500;
+    }
+}
+
+.projects-section {
+    margin-bottom: 32px;
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+
+        h3 {
+            color: #172b4d;
+            font-size: 16px;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .view-all {
+            color: #0052cc;
+            text-decoration: none;
+            font-size: 14px;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 16px;
+    }
+}
+
+.project-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 16px;
+    background-color: #fff;
+    transition: box-shadow 0.3s ease;
+    cursor: pointer;
+
+    &:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .project-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 16px;
+
+        .project-icon {
+            width: 32px;
+            height: 32px;
+            margin-right: 12px;
+            background-color: #0052cc;
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .project-info {
+            h3 {
+                margin: 0;
+                font-size: 16px;
+                font-weight: 600;
+                color: #172b4d;
+            }
+
+            .project-type {
+                font-size: 12px;
+                color: #5e6c84;
+                margin-top: 4px;
+            }
+        }
+    }
+
+    .quick-links {
+        h4 {
+            font-size: 14px;
+            color: #172b4d;
+            margin-bottom: 8px;
+        }
+
+        .links-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+
+            li {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 4px 0;
+                font-size: 14px;
+                color: #172b4d;
+
+                &:hover {
+                    color: #0052cc;
+                }
+            }
+        }
+    }
+
+    .project-footer {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid #e0e0e0;
+        display: flex;
+        align-items: center;
+        color: #5e6c84;
+        font-size: 12px;
+
+        .footer-icon {
+            margin-right: 4px;
+        }
+    }
+}
+
+.work-items-section {
+    margin-bottom: 32px;
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+
+        h3 {
+            color: #172b4d;
+            font-size: 16px;
+            font-weight: 500;
+            margin: 0;
+        }
+    }
+
+    .work-items-list {
+        .time-group {
+            margin-bottom: 24px;
+
+            .time-label {
+                font-size: 12px;
+                font-weight: 600;
+                color: #5e6c84;
+                text-transform: uppercase;
+                margin-bottom: 8px;
+                letter-spacing: 0.5px;
+            }
+        }
+    }
+
+    .work-item {
+        background-color: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        padding: 12px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: background-color 0.2s ease, border-color 0.2s ease;
+
+        &:hover {
+            background-color: #f4f5f7;
+            border-color: #c1c7d0;
+        }
+
+        .work-item-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+
+            .item-icon {
+                color: #0052cc;
+                font-size: 16px;
+                margin-top: 2px;
+            }
+
+            .item-info {
+                flex: 1;
+                min-width: 0;
+
+                .item-title {
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: #172b4d;
+                    margin-bottom: 4px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+                .item-subtitle {
+                    font-size: 12px;
+                    color: #5e6c84;
+                }
+            }
+        }
+    }
+}

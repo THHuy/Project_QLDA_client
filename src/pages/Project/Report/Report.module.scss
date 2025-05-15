@@ -1,0 +1,48 @@
+.report-container {
+  padding: 24px;
+  background-color: #f0f2f5;
+  min-height: 100vh;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f0f2f5;
+}
+
+.report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  h2 {
+    margin: 0;
+    color: #1f1f1f;
+  }
+}
+
+.report-section {
+  .card {
+    margin-bottom: 24px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+}
+
+:global {
+  .ant-card {
+    border-radius: 8px;
+  }
+
+  .ant-statistic-title {
+    font-size: 14px;
+    color: #666;
+  }
+
+  .ant-statistic-content {
+    font-size: 24px;
+    color: #1f1f1f;
+  }
+}

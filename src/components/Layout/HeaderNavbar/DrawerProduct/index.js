@@ -1,6 +1,6 @@
 import { Input, Button, Modal, message, Empty, Avatar, Menu } from "antd";
 import { useState, useRef, useEffect, useCallback } from "react";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import CreateProduct from "./CreateProduct";
 import classNames from "classnames/bind";
@@ -28,7 +28,7 @@ export function DrawerProduct() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [products, setProducts] = useState([]);
   const formRef = useRef(null);
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const items = products.map((product, index) => ({
     key: `sub${index + 1}`,
@@ -44,13 +44,15 @@ export function DrawerProduct() {
             key: `${index + 1}-1-1`,
             icon: <FontAwesomeIcon icon={faHouse} />,
             label: "Home",
-            _productid: product.id, // Custom property, not a DOM prop
+            _productid: product.id,
           },
-          {
-            key: `${index + 1}-1-2`,
-            icon: <FontAwesomeIcon icon={faGear} />,
-            label: "Administration",
-          },
+          ...(product.owner_id === currentUser.uid ? [
+            {
+              key: `${index + 1}-1-2`,
+              icon: <FontAwesomeIcon icon={faGear} />,
+              label: "Administration",
+            }
+          ] : [])
         ],
       },
     ],
@@ -68,8 +70,14 @@ export function DrawerProduct() {
       items[productIndex]?.children[0]?.children[0]?.label === "Home"
     ) {
       localStorage.setItem(`selectedProduct-${currentUser.uid}`, product.id);
-      // navigate(`/your-work/${product.id}`);
-      window.location.reload();
+      navigate(`/your-work/${product.id}`);
+    }
+    if (
+      product &&
+      items[productIndex]?.children[0]?.children[1]?.label === "Administration"
+    ) {
+      localStorage.setItem(`selectedProduct-${currentUser.uid}`, product.id);
+      navigate(`/o/${product.id}/products`);
     }
   };
 

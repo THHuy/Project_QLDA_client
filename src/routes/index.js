@@ -11,6 +11,7 @@ import ProjectID from "~/components/Layout/ProjectID";
 import Directory from "~/pages/Directory";
 import Overview from "~/pages/Overview";
 import ManagerTeams from "~/pages/ManagerTeams";
+import ProductAdmin from "~/pages/ProductAdmin";
 //Layout
 import ManagerUsersLayout from "~/components/Layout/ManagerUserLayout";
 const publicRoutes = [
@@ -37,6 +38,11 @@ const privateRoutes = [
   {
     path: config.routes.managerTeam,
     component: ManagerTeams,
+    layout: ManagerUsersLayout,
+  },
+  {
+    path: config.routes.products,
+    component: ProductAdmin,
     layout: ManagerUsersLayout,
   },
 ];

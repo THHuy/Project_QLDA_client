@@ -1,0 +1,399 @@
+.item-details-drawer-override {
+  // Improved header styles
+  .drawer-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding-bottom: 8px;
+
+    .id-title-container {
+      flex: 1;
+      min-width: 0; // Ensures ellipsis works properly
+    }
+
+    .item-title-view {
+      cursor: pointer;
+      position: relative;
+      padding: 4px 32px 4px 0;
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: rgba(24, 144, 255, 0.05);
+
+        .edit-icon {
+          opacity: 1;
+        }
+      }
+
+      .edit-icon {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0;
+        transition: opacity 0.2s, color 0.2s;
+        color: #1890ff;
+
+        &:hover {
+          color: #40a9ff;
+        }
+      }
+    }
+
+    .item-title-edit {
+      margin-top: 16px;
+
+      input {
+        font-size: 16px;
+        font-weight: 500;
+        border-radius: 6px;
+        border-color: #40a9ff;
+        box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+      }
+    }
+  }
+
+  // Enhanced grid layout
+  .field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 8px;
+  }
+
+  .field-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+    gap: 8px;
+
+    .field-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #8c8c8c;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  // Improved editable fields
+  .field-value-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background-color: #fafafa;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+
+    &.clickable {
+      cursor: pointer;
+
+      &:hover {
+        background-color: #f0f7ff;
+        border-color: #91caff;
+
+        .edit-icon-small {
+          opacity: 1;
+        }
+      }
+    }
+
+    .edit-icon-small {
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+      font-size: 14px;
+      color: #1890ff;
+
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  // Enhanced edit fields
+  .edit-select,
+  .edit-date {
+    width: 100%;
+
+    &:focus {
+      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+    }
+  }
+
+  // Better display for assignee and date
+  .assignee-display,
+  .date-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+  }
+
+  // Enhanced card styles
+  .details-card,
+  .info-card,
+  .steps-card,
+  .results-card,
+  .linked-card {
+    margin-top: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+    .ant-card-head {
+      padding: 0 16px;
+      min-height: 48px;
+      border-bottom-color: #f0f0f0;
+
+      .ant-card-head-title {
+        padding: 12px 0;
+        font-size: 14px;
+        font-weight: 600;
+      }
+    }
+
+    .ant-card-body {
+      padding: 16px;
+    }
+  }
+
+  // Enhanced field groups
+  .field-group {
+    margin-bottom: 16px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .field-label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #8c8c8c;
+    }
+
+    .field-value {
+      color: #262626;
+    }
+  }
+
+  // Steps timeline enhancement
+  .steps-timeline {
+    margin-top: 12px;
+
+    .ant-timeline-item {
+      padding-bottom: 24px;
+
+      &:last-child {
+        padding-bottom: 0;
+      }
+
+      .ant-timeline-item-head {
+        background-color: #e6f7ff;
+        border-color: #1890ff;
+      }
+    }
+  }
+
+  // Better linked items
+  .linked-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+    padding: 8px 12px;
+    background-color: #f5f5f5;
+    border-radius: 6px;
+    border-left: 3px solid #1890ff;
+
+    .link-icon {
+      color: #1890ff;
+    }
+  }
+
+  // Failed step enhancement
+  .failed-step-card {
+    margin-top: 8px;
+    background-color: #fff2f0;
+    border-color: #ffccc7;
+    border-radius: 6px;
+    border-left: 3px solid #ff4d4f;
+
+    .ant-card-body {
+      padding: 12px;
+    }
+  }
+
+  // Enhanced tabs
+  .drawer-tabs {
+    padding: 0 16px;
+
+    .ant-tabs-nav {
+      margin-bottom: 16px;
+
+      &:before {
+        border-bottom-color: #f0f0f0;
+      }
+
+      .ant-tabs-tab {
+        padding: 12px 16px;
+
+        &:hover {
+          color: #40a9ff;
+        }
+
+        .anticon {
+          margin-right: 8px;
+        }
+      }
+
+      .ant-tabs-tab-active {
+        .ant-tabs-tab-btn {
+          font-weight: 600;
+        }
+      }
+
+      .ant-tabs-ink-bar {
+        height: 3px;
+        border-radius: 3px 3px 0 0;
+      }
+    }
+  }
+
+  // Content containers
+  .details-content,
+  .activity-content {
+    padding: 4px 16px 24px;
+  }
+
+  // Enhanced activity timeline
+  .activity-timeline {
+    padding-top: 16px;
+
+    .ant-timeline-item {
+      padding-bottom: 20px;
+
+      &:last-child {
+        padding-bottom: 0;
+      }
+
+      .ant-timeline-item-head {
+        background-color: #f0f7ff;
+        border-color: #1890ff;
+      }
+    }
+
+    .activity-card {
+      margin-bottom: 8px;
+      background-color: #fafafa;
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      .ant-card-body {
+        padding: 16px;
+      }
+    }
+
+    .activity-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .activity-time {
+      margin-left: auto;
+      font-size: 12px;
+      color: #8c8c8c;
+    }
+
+    .activity-description {
+      margin-bottom: 12px;
+      color: #262626;
+    }
+
+    .activity-changes {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px;
+      background-color: #f0f0f0;
+      border-radius: 6px;
+
+      .arrow-icon {
+        color: #8c8c8c;
+      }
+
+      .ant-tag {
+        margin-right: 0;
+        padding: 4px 8px;
+        border-radius: 4px;
+      }
+    }
+  }
+
+  // Empty activity styling
+  .empty-activity {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 64px 0;
+    color: #8c8c8c;
+
+    .anticon {
+      font-size: 32px;
+      margin-bottom: 16px;
+      color: #d9d9d9;
+    }
+  }
+
+  // Loading state
+  .loading-spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+  }
+
+  // Enhanced status and priority tags
+  .status-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  .work-type-tag {
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 4px;
+  }
+
+  // Footer enhancements
+  .drawer-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 12px 16px;
+    border-top: 1px solid #f0f0f0;
+
+    button {
+      min-width: 80px;
+
+      &:not(:first-child) {
+        margin-left: 8px;
+      }
+    }
+  }
+}

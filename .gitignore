@@ -28,3 +28,4 @@ functions/package.json
 firestore.indexes.json
 firebase.json
 firestore.rules
+public/firebase-messaging-sw.js

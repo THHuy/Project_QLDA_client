@@ -19,7 +19,7 @@ function ManagerUsersLayout({ children }) {
         navigate(`/o/${getUserProduct(currentUser.uid)}/user`);
         break;
       case "3":
-        navigate(`/o/${getUserProduct(currentUser.uid)}/product`);
+        navigate(`/o/${getUserProduct(currentUser.uid)}/products`);
         break;
       case "4":
         navigate(`/o/${getUserProduct(currentUser.uid)}/setting`);
@@ -32,7 +32,7 @@ function ManagerUsersLayout({ children }) {
     const path = location.pathname;
     if (path.endsWith("overview")) return "1";
     if (path.endsWith("teams") || path.endsWith("user")) return "2";
-    if (path.endsWith("product")) return "3";
+    if (path.endsWith("products")) return "3";
     if (path.endsWith("setting")) return "4";
     return "1"; // Mặc định
   };
@@ -47,7 +47,7 @@ function ManagerUsersLayout({ children }) {
     },
     {
       key: "3",
-      label: "Product",
+      label: "Products",
     },
     {
       key: "4",

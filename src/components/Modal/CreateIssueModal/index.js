@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Modal, Form, Select, DatePicker, Input } from "antd";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Modal, Form, Select, DatePicker, Input, Button } from "antd";
 import Swal from "sweetalert2";
 
 // Import Draft.js modules
@@ -19,8 +19,10 @@ import {
   ArrowDownOutlined,
   MinusOutlined,
   WarningFilled,
+  FileTextOutlined,
+  PlusOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
-// import { useAuth } from "~/components/hook/useAuth/useAuth"; // Removed as currentUser is a prop
 import {
   collection,
   query,
@@ -29,7 +31,7 @@ import {
   doc,
   getDoc,
   addDoc,
-  // serverTimestamp, // Tùy chọn: dùng cho thời gian phía server
+  Timestamp,
 } from "firebase/firestore";
 import { db } from "~/components/services/firebase";
 import { message } from "antd"; // Import message từ Ant Design
@@ -53,27 +55,102 @@ function CreateIssueModal({ open, onClose, currentUser }) {
   const [form] = Form.useForm();
   const [usersList, setUsersList] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
-
-  const [projectsList, setProjectsList] = useState([]); // Initialize as empty
+  const [projectsList, setProjectsList] = useState([]);
   const [loadingProjects, setLoadingProjects] = useState(false);
-  // Replace descriptionHtml state with editorState for Draft.js
   const [editorState, setEditorState] = useState(() =>
     EditorState.createEmpty()
   );
-  const editorRef = useRef(null); // Create a ref for the Editor
+  const editorRef = useRef(null);
+  const [testCaseSteps, setTestCaseSteps] = useState([{ id: 1, value: "" }]);
+  const [testCasesList, setTestCasesList] = useState([]);
+  const [loadingTestCases, setLoadingTestCases] = useState(false);
+  const [tasksList, setTasksList] = useState([]);
+  const [loadingTasks, setLoadingTasks] = useState(false);
+  const [selectedWorkType, setSelectedWorkType] = useState(null);
+  const [stepsOfLinkedTestCase, setStepsOfLinkedTestCase] = useState([]);
+
+  // MOVED DEFINITIONS UP HERE
+  const fetchTestCasesForProject = useCallback(
+    async (projectId) => {
+      if (!open || !currentUser || !projectId) {
+        setTestCasesList([]);
+        setLoadingTestCases(false);
+        return;
+      }
+      setLoadingTestCases(true);
+      try {
+        const testCasesQuery = query(
+          collection(db, "test_cases"),
+          where("project_id", "==", projectId)
+        );
+        const testCasesSnapshot = await getDocs(testCasesQuery);
+        const fetchedTestCases = testCasesSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          name: doc.data().test_case_name,
+          steps: doc.data().steps || [],
+          ...doc.data(),
+        }));
+        if (fetchedTestCases.length === 0) {
+          console.warn(
+            `CreateIssueModal: Không tìm thấy test cases nào cho Project ID: ${projectId}`
+          );
+        }
+        setTestCasesList(fetchedTestCases);
+      } catch (error) {
+        console.error("CreateIssueModal: Lỗi khi tải test cases:", error);
+        setTestCasesList([]);
+      } finally {
+        setLoadingTestCases(false);
+      }
+    },
+    [open, currentUser, setLoadingTestCases, setTestCasesList]
+  );
+
+  const fetchTasksForProject = useCallback(
+    async (projectId) => {
+      if (!open || !currentUser || !projectId) {
+        setTasksList([]);
+        setLoadingTasks(false);
+        return;
+      }
+      setLoadingTasks(true);
+      try {
+        const tasksQuery = query(
+          collection(db, "tasks"),
+          where("project_id", "==", projectId)
+        );
+        const tasksSnapshot = await getDocs(tasksQuery);
+        const fetchedTasks = tasksSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          summary: doc.data().summary,
+          ...doc.data(),
+        }));
+        if (fetchedTasks.length === 0) {
+          console.warn(
+            `CreateIssueModal: Không tìm thấy tasks nào cho Project ID: ${projectId}`
+          );
+        }
+        setTasksList(fetchedTasks);
+      } catch (error) {
+        console.error("CreateIssueModal: Lỗi khi tải tasks:", error);
+        setTasksList([]);
+      } finally {
+        setLoadingTasks(false);
+      }
+    },
+    [open, currentUser, setLoadingTasks, setTasksList]
+  );
 
   useEffect(() => {
     const fetchProjects = async () => {
       if (!open || !currentUser) {
-        setProjectsList([]); // Clear projects if modal not open or no user
+        setProjectsList([]);
         return;
       }
       setLoadingProjects(true);
-
       const selectedProductId = localStorage.getItem(
         `selectedProduct-${currentUser.uid}`
       );
-
       if (!selectedProductId) {
         console.warn(
           "CreateIssueModal: Không có sản phẩm được chọn. Không thể tải dự án."
@@ -82,20 +159,17 @@ function CreateIssueModal({ open, onClose, currentUser }) {
         setLoadingProjects(false);
         return;
       }
-
       try {
-        // Adjust collection name to 'project' (singular) to match security rules
         const projectsQuery = query(
-          collection(db, "project"), // Changed from "projects" to "project"
+          collection(db, "project"),
           where("product_id", "==", selectedProductId)
         );
         const projectsSnapshot = await getDocs(projectsQuery);
         const fetchedProjects = projectsSnapshot.docs.map((doc) => ({
           id: doc.id,
-          name: doc.data().project_name, // Assuming project name field is project_name like in TableProject
-          ...doc.data(), // Spread the rest of the project data
+          name: doc.data().project_name,
+          ...doc.data(),
         }));
-
         if (fetchedProjects.length === 0) {
           console.warn(
             `CreateIssueModal: Không tìm thấy dự án nào cho Product ID: ${selectedProductId}`
@@ -104,7 +178,7 @@ function CreateIssueModal({ open, onClose, currentUser }) {
         setProjectsList(fetchedProjects);
       } catch (error) {
         console.error("CreateIssueModal: Lỗi khi tải dự án:", error);
-        setProjectsList([]); // Reset on error
+        setProjectsList([]);
       } finally {
         setLoadingProjects(false);
       }
@@ -115,12 +189,10 @@ function CreateIssueModal({ open, onClose, currentUser }) {
         setUsersList([]);
         return;
       }
-
       setLoadingUsers(true);
       const productIdForUsers = localStorage.getItem(
         `selectedProduct-${currentUser.uid}`
       );
-
       if (!productIdForUsers) {
         console.warn(
           "CreateIssueModal: Không tìm thấy Product ID để tải người dùng."
@@ -129,7 +201,6 @@ function CreateIssueModal({ open, onClose, currentUser }) {
         setLoadingUsers(false);
         return;
       }
-
       try {
         const q = query(
           collection(db, "product_members"),
@@ -154,11 +225,9 @@ function CreateIssueModal({ open, onClose, currentUser }) {
             return null;
           }
         );
-
         let fetchedUsers = (await Promise.all(userDataPromises)).filter(
           Boolean
         );
-
         const currentUserInList = fetchedUsers.some(
           (u) => u.uid === currentUser.uid
         );
@@ -184,31 +253,92 @@ function CreateIssueModal({ open, onClose, currentUser }) {
     if (open) {
       fetchProjects();
       fetchUsersForProduct();
-      // Reset Draft.js editor state on modal open
+
+      // Initial reset of linked items when modal opens
+      setTestCasesList([]);
+      setTasksList([]);
+      setStepsOfLinkedTestCase([]);
+      form.setFieldsValue({
+        linkedTestCase: undefined,
+        linkedTask: undefined,
+        stepFailed: undefined,
+      });
+
       setEditorState(EditorState.createEmpty());
+      setSelectedWorkType(form.getFieldValue("workType") || "Task");
     }
-  }, [open, currentUser]);
+    if (!open) {
+      form.resetFields();
+      setEditorState(EditorState.createEmpty());
+      setTestCaseSteps([{ id: 1, value: "" }]);
+      setSelectedWorkType(null);
+      setStepsOfLinkedTestCase([]);
+    }
+  }, [open, currentUser, form]);
 
   useEffect(() => {
     if (open && currentUser) {
+      const initialProject =
+        projectsList.length > 0 ? projectsList[0].id : undefined;
       form.setFieldsValue({
-        summary: "", // Initialize summary field
-        // description is handled by editorState state
+        summary: "",
         assignee: currentUser.uid,
         priority: "Medium",
         status: "To Do",
-        // Set default project after projects are loaded, if any
-        project: projectsList.length > 0 ? projectsList[0].id : undefined,
-        dueDate: null, // Initialize dueDate
+        workType: "Task",
+        project: initialProject,
+        dueDate: null,
+        startDate: null,
+        testCaseName: "",
+        expectedResult: "",
+        actualResult: "",
+        linkedTask: undefined,
+        linkedTestCase: undefined,
+        stepFailed: undefined,
       });
-      // Also reset Draft.js editor if modal re-opens with old state
+
+      // Fetch linked items based on the initial/default project
+      if (initialProject) {
+        fetchTestCasesForProject(initialProject);
+        fetchTasksForProject(initialProject);
+      } else {
+        // If no initial project, clear lists
+        setTestCasesList([]);
+        setTasksList([]);
+      }
+      setTestCaseSteps([{ id: 1, value: "" }]);
+      setSelectedWorkType("Task");
       setEditorState(EditorState.createEmpty());
+      setStepsOfLinkedTestCase([]);
     } else if (!open) {
-      form.resetFields(); // Reset form when modal is closed externally
-      // Ensure Draft.js editor is cleared when modal is closed externally
+      form.resetFields();
       setEditorState(EditorState.createEmpty());
+      setTestCaseSteps([{ id: 1, value: "" }]);
+      setSelectedWorkType(null);
+      setStepsOfLinkedTestCase([]);
     }
-  }, [open, currentUser, form, projectsList]); // Added projectsList to dependencies for default project setting
+  }, [
+    open,
+    currentUser,
+    form,
+    projectsList,
+    fetchTestCasesForProject,
+    fetchTasksForProject,
+  ]);
+
+  const handleProjectChange = (selectedProjectId) => {
+    // Fetch new lists based on the selected project
+    fetchTestCasesForProject(selectedProjectId);
+    fetchTasksForProject(selectedProjectId);
+
+    // Reset dependent fields as their options have changed
+    form.setFieldsValue({
+      linkedTestCase: undefined,
+      linkedTask: undefined,
+      stepFailed: undefined,
+    });
+    setStepsOfLinkedTestCase([]); // Clear steps for bug linking
+  };
 
   // Handle Draft.js editor state change
   const handleEditorChange = (newEditorState) => {
@@ -231,6 +361,73 @@ function CreateIssueModal({ open, onClose, currentUser }) {
     }
   };
 
+  // Functions to manage Test Case Steps
+  const handleAddStep = () => {
+    setTestCaseSteps([
+      ...testCaseSteps,
+      { id: Date.now(), value: "" }, // Use timestamp for unique ID
+    ]);
+  };
+
+  const handleStepChange = (id, newValue) => {
+    setTestCaseSteps(
+      testCaseSteps.map((step) =>
+        step.id === id ? { ...step, value: newValue } : step
+      )
+    );
+  };
+
+  const handleRemoveStep = (id) => {
+    setTestCaseSteps(testCaseSteps.filter((step) => step.id !== id));
+  };
+
+  const handleWorkTypeChange = (value) => {
+    setSelectedWorkType(value);
+    form.setFieldsValue({ stepFailed: undefined }); // Always reset stepFailed on workType change
+    setStepsOfLinkedTestCase([]); // Always reset steps for bug linking on workType change
+
+    if (value === "Task") {
+      form.setFieldsValue({
+        testCaseName: undefined,
+        expectedResult: undefined,
+        actualResult: undefined,
+        linkedTask: undefined,
+        stepFailed: undefined,
+      });
+      setTestCaseSteps([{ id: 1, value: "" }]);
+    } else if (value === "Bug") {
+      form.setFieldsValue({
+        testCaseName: undefined,
+        expectedResult: undefined,
+        actualResult: undefined,
+        linkedTask: undefined,
+      });
+      setTestCaseSteps([{ id: 1, value: "" }]);
+    } else if (value === "Test Case") {
+      form.setFieldsValue({
+        summary: undefined,
+        linkedTestCase: undefined,
+        stepFailed: undefined,
+      });
+    }
+  };
+
+  const handleLinkedTestCaseChange = (selectedTestCaseId) => {
+    form.setFieldsValue({ stepFailed: undefined }); // Reset step failed selection
+    if (selectedTestCaseId) {
+      const foundTestCase = testCasesList.find(
+        (tc) => tc.id === selectedTestCaseId
+      );
+      if (foundTestCase && foundTestCase.steps) {
+        setStepsOfLinkedTestCase(foundTestCase.steps);
+      } else {
+        setStepsOfLinkedTestCase([]);
+      }
+    } else {
+      setStepsOfLinkedTestCase([]);
+    }
+  };
+
   const handleCreateOk = async (values) => {
     const currentContent = editorState.getCurrentContent();
     const rawContentState = convertToRaw(currentContent);
@@ -242,38 +439,76 @@ function CreateIssueModal({ open, onClose, currentUser }) {
         rawContentState.blocks[0].text.trim() === "" &&
         rawContentState.blocks[0].type === "unstyled")
     ) {
-      message.error("Mô tả là bắt buộc và không được để trống.");
+      message.error("Description is required and cannot be empty.");
       return;
     }
-    const collectionName = values.workType === "Task" ? "tasks" : "bugs";
+
+    let collectionName = "";
+    if (values.workType === "Task") {
+      collectionName = "tasks";
+    } else if (values.workType === "Bug") {
+      collectionName = "bugs";
+    } else if (values.workType === "Test Case") {
+      collectionName = "test_cases"; // New collection for test cases
+    } else {
+      message.error("Invalid work type selected.");
+      return;
+    }
+
     const dataToSave = {
-      summary: values.summary,
+      summary: values.workType !== "Test Case" ? values.summary : undefined, // Summary only for Task/Bug
       project_id: values.project,
       assignee_id: values.assignee,
       priority: values.priority,
-      description: rawContentState, // Lưu trữ raw content state của Draft.js
-      due_date: values.dueDate ? values.dueDate.valueOf() : null, // Lưu timestamp milliseconds
+      description: rawContentState,
+      start_date: values.startDate
+        ? Timestamp.fromDate(values.startDate.toDate())
+        : Timestamp.fromDate(new Date()), // Firestore Timestamp for start_date
+      due_date: values.dueDate
+        ? Timestamp.fromDate(values.dueDate.toDate())
+        : null, // Firestore Timestamp for due_date (will always have value due to form validation)
       status: values.status,
       work_type: values.workType,
-      created_at: new Date().getTime(), // Lưu timestamp milliseconds; hoặc dùng serverTimestamp()
-      // reporter_id: currentUser?.uid, // Đã được bạn xóa ở bước trước
-      // product_id: localStorage.getItem(`selectedProduct-${currentUser?.uid}`), // Đã được bạn xóa ở bước trước
+      created_at: new Date().getTime(),
     };
 
-    try {
-      // Hiện message loading (tùy chọn)
-      // message.loading({ content: 'Đang tạo issue...', key: 'creatingIssue' });
+    if (values.workType === "Test Case") {
+      // Specific fields for Test Case
+      dataToSave.test_case_name = values.testCaseName; // Rename to match DB
+      console.log(values.linkedTask);
+      dataToSave.steps = testCaseSteps
+        .map((step) => step.value)
+        .filter((s) => s.trim() !== ""); // Save step values
+      dataToSave.expected_result = values.expectedResult;
+      dataToSave.actual_result = values.actualResult || null; // Optional
+      dataToSave.linked_task_id = values.linkedTask ? values.linkedTask : null;
+      // Test Case ID will be auto-generated by Firestore/backend or use docRef.id
+      delete dataToSave.summary; // Not needed for Test Case type
+    } else if (values.workType === "Task") {
+      dataToSave.linked_test_case_id = values.linkedTestCase || null;
+    } else if (values.workType === "Bug") {
+      dataToSave.linked_test_case_id = values.linkedTestCase || null;
+      dataToSave.step_failed = values.stepFailed || null;
+    }
 
+    try {
       const docRef = await addDoc(collection(db, collectionName), dataToSave);
+      let successMessageTitle = "";
+      if (values.workType === "Test Case") {
+        successMessageTitle = values.testCaseName;
+      } else {
+        successMessageTitle = values.summary;
+      }
+
       message.success({
-        content: `Đã tạo '${values.summary}' thành công! (ID: ${docRef.id})`,
+        content: `Đã tạo '${successMessageTitle}' thành công! (ID: ${docRef.id})`,
         key: "creatingIssue",
         duration: 3,
       });
       Swal.fire({
         icon: "success",
         title: "Success!",
-        text: `Create '${values.summary}' successfully!`,
+        text: `Create '${successMessageTitle}' successfully!`,
         timer: 2000,
         showConfirmButton: false,
       });
@@ -281,15 +516,16 @@ function CreateIssueModal({ open, onClose, currentUser }) {
       onClose();
       form.resetFields();
       setEditorState(EditorState.createEmpty());
+      setTestCaseSteps([{ id: 1, value: "" }]); // Reset steps on success
+      setSelectedWorkType(null); // Reset selected work type
     } catch (e) {
       console.error("Lỗi khi thêm document: ", e);
-      // message.error({ content: `Tạo issue thất bại: ${e.message}`, key: 'creatingIssue', duration: 3 });
       Swal.fire({
         icon: "error",
         title: "Error!",
-        text: `Create '${values.summary}' failed: ${
-          e.message || "Please try again."
-        }`,
+        text: `Create '${
+          values.workType === "Test Case" ? values.testCaseName : values.summary
+        }' failed: ${e.message || "Please try again."}`,
         timer: 2000,
         showConfirmButton: false,
       });
@@ -339,8 +575,8 @@ function CreateIssueModal({ open, onClose, currentUser }) {
             loading={loadingProjects}
             showSearch
             optionFilterProp="children"
+            onChange={handleProjectChange}
           >
-            {/* Replace with actual dynamic project data */}
             {projectsList.map((proj) => (
               <Option key={proj.id} value={proj.id}>
                 {proj.name}
@@ -354,23 +590,114 @@ function CreateIssueModal({ open, onClose, currentUser }) {
           label="Work type"
           rules={[{ required: true, message: "Please select a work type!" }]}
         >
-          <Select placeholder="Select work type">
+          <Select
+            placeholder="Select work type"
+            onChange={handleWorkTypeChange}
+          >
             <Option value="Task">
               <CheckSquareOutlined style={{ marginRight: 8 }} /> Task
             </Option>
             <Option value="Bug">
               <BugOutlined style={{ marginRight: 8 }} /> Bug
             </Option>
+            <Option value="Test Case">
+              <FileTextOutlined style={{ marginRight: 8 }} /> Test Case
+            </Option>
           </Select>
         </Form.Item>
 
-        <Form.Item
-          name="summary"
-          label="Summary"
-          rules={[{ required: true, message: "Please enter a summary!" }]}
-        >
-          <Input placeholder="Enter a concise summary or title" />
-        </Form.Item>
+        {selectedWorkType !== "Test Case" && (
+          <Form.Item
+            name="summary"
+            label="Summary"
+            rules={[{ required: true, message: "Please enter a summary!" }]}
+          >
+            <Input placeholder="Enter a concise summary or title" />
+          </Form.Item>
+        )}
+
+        {selectedWorkType === "Test Case" && (
+          <>
+            <Form.Item label="Test Case ID">
+              <Input placeholder="Auto-generated" disabled />
+            </Form.Item>
+            <Form.Item
+              name="testCaseName"
+              label="Test Case Name"
+              rules={[
+                { required: true, message: "Please enter Test Case Name!" },
+              ]}
+            >
+              <Input placeholder="Enter Test Case Name" />
+            </Form.Item>
+
+            <Form.Item label="Steps">
+              {testCaseSteps.map((step, index) => (
+                <div key={step.id} style={{ display: "flex", marginBottom: 8 }}>
+                  <Input
+                    placeholder={`Step ${index + 1}`}
+                    value={step.value}
+                    onChange={(e) => handleStepChange(step.id, e.target.value)}
+                    style={{ marginRight: 8 }}
+                  />
+                  {testCaseSteps.length > 1 && (
+                    <Button
+                      icon={<DeleteOutlined />}
+                      onClick={() => handleRemoveStep(step.id)}
+                      danger
+                    />
+                  )}
+                </div>
+              ))}
+              <Button
+                type="dashed"
+                onClick={handleAddStep}
+                icon={<PlusOutlined />}
+              >
+                Add Step
+              </Button>
+            </Form.Item>
+
+            <Form.Item
+              name="expectedResult"
+              label="Expected Result"
+              rules={[
+                { required: true, message: "Please enter expected result!" },
+              ]}
+            >
+              <Input.TextArea rows={3} placeholder="Enter expected result" />
+            </Form.Item>
+
+            <Form.Item name="actualResult" label="Actual Result">
+              <Input.TextArea
+                rows={3}
+                placeholder="Enter actual result (optional, update after test)"
+              />
+            </Form.Item>
+
+            <Form.Item name="linkedTask" label="Linked Task">
+              <Select
+                placeholder="Select linked task (optional)"
+                loading={loadingTasks}
+                disabled={!form.getFieldValue("project") || loadingTasks}
+                allowClear
+                showSearch
+                optionFilterProp="children"
+                filterOption={(input, option) =>
+                  (option.children || "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+              >
+                {tasksList.map((task) => (
+                  <Option key={task.id} value={task.id}>
+                    {task.summary}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </>
+        )}
 
         <Form.Item
           label="Description"
@@ -390,6 +717,82 @@ function CreateIssueModal({ open, onClose, currentUser }) {
             />
           </div>
         </Form.Item>
+
+        {selectedWorkType === "Task" && (
+          <Form.Item name="linkedTestCase" label="Test Case Linked">
+            <Select
+              placeholder="Select linked test case (optional)"
+              loading={loadingTestCases}
+              disabled={!form.getFieldValue("project") || loadingTestCases}
+              allowClear
+              showSearch
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                (option.children || "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              onChange={handleLinkedTestCaseChange}
+            >
+              {testCasesList.map((tc) => (
+                <Option key={tc.id} value={tc.id}>
+                  {tc.name}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+        )}
+
+        {selectedWorkType === "Bug" && (
+          <>
+            <Form.Item name="linkedTestCase" label="Linked Test Case">
+              <Select
+                placeholder="Select linked test case (optional)"
+                loading={loadingTestCases}
+                disabled={!form.getFieldValue("project") || loadingTestCases}
+                allowClear
+                showSearch
+                optionFilterProp="children"
+                filterOption={(input, option) =>
+                  (option.children || "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                onChange={handleLinkedTestCaseChange}
+              >
+                {testCasesList.map((tc) => (
+                  <Option key={tc.id} value={tc.id}>
+                    {tc.name}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+            <Form.Item name="stepFailed" label="Step Failed">
+              <Select
+                placeholder="Select failed step (optional)"
+                allowClear
+                showSearch
+                disabled={
+                  !form.getFieldValue("linkedTestCase") ||
+                  stepsOfLinkedTestCase.length === 0
+                }
+                optionFilterProp="children"
+                filterOption={
+                  (input, option) =>
+                    (option.children[2] || "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase()) // Filter on step text
+                }
+              >
+                {stepsOfLinkedTestCase.map((step, index) => (
+                  <Option key={index} value={index + 1}>
+                    {`Step ${index + 1}: ${step}`}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </>
+        )}
 
         <Form.Item
           name="status"
@@ -486,11 +889,24 @@ function CreateIssueModal({ open, onClose, currentUser }) {
           </Select>
         </Form.Item>
 
-        <Form.Item name="dueDate" label="Due date">
+        <Form.Item name="startDate" label="Start date">
           <DatePicker
             style={{ width: "100%" }}
             showTime
-            format="YYYY-MM-DD HH:mm"
+            format="MMMM D, YYYY [at] h:mm:ss A [UTC]Z"
+            placeholder="Select start date and time (optional)"
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="dueDate"
+          label="Due date"
+          rules={[{ required: true, message: "Please select a due date!" }]}
+        >
+          <DatePicker
+            style={{ width: "100%" }}
+            showTime
+            format="MMMM D, YYYY [at] h:mm:ss A [UTC]Z"
             placeholder="Select date and time"
           />
         </Form.Item>

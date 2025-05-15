@@ -6,3 +6,21 @@
     padding-right: 10px;
   }
 }
+
+.container-fluid {
+  .project-name-input {
+    width: 200px;
+    height: 24px;
+    font-size: 14px;
+    padding: 0 8px;
+    border: 1px solid #d9d9d9;
+    border-radius: 2px;
+    transition: all 0.3s;
+
+    &:hover,
+    &:focus {
+      border-color: #40a9ff;
+      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+    }
+  }
+}

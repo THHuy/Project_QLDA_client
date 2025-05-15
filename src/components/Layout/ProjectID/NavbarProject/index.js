@@ -4,13 +4,17 @@ import classNames from "classnames/bind";
 import styles from "./NavbarProject.module.scss";
 import Backlog from "~/pages/Project/Backlog";
 import CalendarPage from "~/pages/Project/Calendar";
+import SummaryPage from "~/pages/Project/Summary";
+import AllWork from "~/pages/Project/AllWork";
+import Timeline from "~/pages/Project/Timeline";
+import Report from "~/pages/Project/Report";
 const cx = classNames.bind(styles);
 function NavbarProject() {
   const navigate = useNavigate();
   const params = useParams();
+  const { projectId } = params;
 
   const onChange = (key) => {
-    const { projectId } = params;
     const selectedItem = items.find((item) => item.key === key);
     if (selectedItem && projectId) {
       const slug = selectedItem.label.toLowerCase().replace(/\s+/g, "-");
@@ -26,12 +30,12 @@ function NavbarProject() {
     {
       key: "1",
       label: "Summary",
-      children: "Content of Tab Summary",
+      children: <SummaryPage projectId={projectId} />,
     },
     {
       key: "2",
       label: "Timeline",
-      children: "Content of Tab Timeline",
+      children: <Timeline />,
     },
     {
       key: "3",
@@ -40,33 +44,18 @@ function NavbarProject() {
     },
     {
       key: "4",
-      label: "Active Sprint",
-      children: "Content of Tab Active Sprint",
-    },
-    {
-      key: "5",
       label: "Calendar",
       children: <CalendarPage />,
     },
     {
-      key: "6",
+      key: "5",
       label: "Report",
-      children: "Content of Tab Report",
+      children: <Report />,
     },
     {
-      key: "7",
-      label: "List",
-      children: "Content of Tab List",
-    },
-    {
-      key: "8",
+      key: "6",
       label: "All Work",
-      children: "Content of Tab All Work",
-    },
-    {
-      key: "9",
-      label: "Test Case",
-      children: "Content of Tab Test Case",
+      children: <AllWork />,
     },
   ];
   return (

@@ -1,0 +1,74 @@
+// SCSS for WorkItemRow component
+// client/src/components/WorkItemRow/WorkItemRow.module.scss
+
+.work-item-row {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s ease;
+  cursor: default; // Default cursor for the row
+
+  &:hover {
+    background-color: #f9f9f9;
+  }
+
+  .item-checkbox {
+    margin-right: 12px;
+  }
+
+  .item-main-content {
+    display: flex;
+    flex-grow: 1;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px; // Gap between details and actions
+  }
+
+  .item-details {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-grow: 1;
+    min-width: 0; // Prevents text overflow issues
+  }
+
+  .item-type-icon {
+    font-size: 16px;
+    display: flex; // Helps align icon if it has weird spacing
+    align-items: center;
+  }
+
+  .item-summary {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer; // Explicitly make summary clickable
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .item-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px; // Spacing between action items
+  }
+
+  .status-select {
+    min-width: 120px; // Give select a bit more space
+  }
+
+  .action-button {
+    padding: 0 6px; // Compact padding for action buttons
+    display: flex;
+    align-items: center;
+    color: #5e6c84; // Default icon/text color for actions
+
+    &.priority-button,
+    &.assignee-button {
+      min-width: 32px; // Ensure enough space for icon only buttons
+      justify-content: center;
+    }
+  }
+} 

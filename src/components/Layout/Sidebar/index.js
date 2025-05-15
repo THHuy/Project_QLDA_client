@@ -202,7 +202,7 @@ function Sidebar() {
         style={{ width: 256 }}
         selectedKeys={[getActiveKey()]}
         defaultOpenKeys={[
-          "3", // Always try to open the 'Project' section by default
+          "2", // Always try to open the 'Project' section by default
           getActiveKey().startsWith("project-") ? "g1" : null, // If a project is active, open the 'Recent' group
         ].filter(Boolean)}
         mode="inline"

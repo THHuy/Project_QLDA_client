@@ -7,17 +7,44 @@ import { Breadcrumb } from "antd";
 import NavbarProject from "./NavbarProject";
 import classNames from "classnames/bind";
 import styles from "./ProjectID.module.scss";
+import { db } from "~/components/services/firebase";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  doc,
+  getDoc,
+} from "firebase/firestore";
+import { useParams } from "react-router-dom";
+
 const cx = classNames.bind(styles);
+
 function ProjectID() {
   const { currentUser } = useAuth();
-  const [productId, setProductId] = useState(null);
+  const { projectId } = useParams();
+  const [projectName, setProjectName] = useState("");
+
   useEffect(() => {
-    const fetchProductId = async () => {
-      const productId = await getUserProduct(currentUser.uid);
-      setProductId(productId);
+    const fetchData = async () => {
+      if (!currentUser || !projectId) return;
+
+      // Fetch project name
+      try {
+        const projectRef = doc(db, "project", projectId);
+        const projectDoc = await getDoc(projectRef);
+        if (projectDoc.exists()) {
+          const projectData = projectDoc.data();
+          setProjectName(projectData.project_name || "Project");
+        }
+      } catch (error) {
+        console.error("Error fetching project data:", error);
+      }
     };
-    fetchProductId();
-  }, [currentUser]);
+
+    fetchData();
+  }, [currentUser, projectId]);
+
   return (
     <div className={cx("container-fluid")}>
       <div className={cx("header-content")}>
@@ -27,13 +54,14 @@ function ProjectID() {
               title: <a href="/projects">Projects</a>,
             },
             {
-              title: <a href={`/projects/id/${productId}`}>Project ID</a>,
+              title: (
+                <a href={`/projects/id/${projectId}/backlog`}>{projectName}</a>
+              ),
             },
           ]}
         />
         <div className={cx("title-project")}>
-          <input placeholder="P" />
-          <FontAwesomeIcon icon={faEllipsis} />
+          <h1>Board</h1>
         </div>
       </div>
       <div className={cx("body-content")}>

@@ -1,0 +1,199 @@
+// ProductManagement.scss
+
+// Variables
+$primary-color: #0052cc; // Atlassian blue
+$secondary-color: #172b4d; // Atlassian dark blue
+$border-color: #dfe1e6;
+$text-color: #172b4d;
+$text-secondary: #6b778c;
+$background-color: #f4f5f7;
+$white: #ffffff;
+
+// Mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+// Global styles
+.product-management-layout {
+  min-height: 100vh;
+  background-color: $background-color;
+
+  .app-header {
+    background-color: $white;
+    padding: 0 24px;
+    height: 56px;
+    line-height: 56px;
+    box-shadow: 0 1px 0 $border-color;
+    @include flex-between;
+
+    .breadcrumb-container {
+      font-size: 14px;
+    }
+  }
+
+  .app-content {
+    padding: 24px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  // Page header
+  .page-header {
+    @include flex-between;
+    margin-bottom: 16px;
+
+    h2 {
+      margin: 0;
+      color: $secondary-color;
+      font-weight: 500;
+    }
+
+    .header-actions {
+      @include flex-center;
+      gap: 8px;
+    }
+  }
+
+  .page-description {
+    color: $text-secondary;
+    margin-bottom: 24px;
+  }
+
+  // Search and filters
+  .table-toolbar {
+    margin-bottom: 16px;
+
+    .search-filter {
+      display: flex;
+      gap: 8px;
+      max-width: 500px;
+
+      .search-input {
+        width: 240px;
+      }
+
+      .filter-select {
+        width: 120px;
+      }
+    }
+  }
+
+  // Results summary
+  .results-summary {
+    color: $text-secondary;
+    font-size: 14px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+
+    .refresh-icon {
+      margin-left: 8px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+  }
+
+  // Table styling
+  .products-table {
+    margin-bottom: 16px;
+    background-color: $white;
+    border-radius: 3px;
+    overflow: hidden;
+
+    .ant-table-thead > tr > th {
+      background-color: #fafbfc;
+      color: $text-secondary;
+      font-weight: 600;
+      padding: 12px 16px;
+    }
+
+    .ant-table-tbody > tr > td {
+      padding: 12px 16px;
+    }
+
+    .product-cell {
+      @include flex-center;
+
+      .product-icon {
+        width: 32px;
+        height: 32px;
+        margin-right: 12px;
+        @include flex-center;
+        justify-content: center;
+        font-size: 24px;
+      }
+
+      .product-info {
+        display: flex;
+        flex-direction: column;
+
+        .product-name {
+          font-weight: 500;
+          color: $text-color;
+        }
+
+        .product-link {
+          font-size: 12px;
+          color: $text-secondary;
+        }
+      }
+    }
+
+    .action-cell {
+      @include flex-between;
+
+      .more-actions-btn {
+        color: $text-secondary;
+      }
+    }
+  }
+
+  // Table footer with pagination
+  .table-footer {
+    @include flex-between;
+    font-size: 14px;
+    color: $text-secondary;
+
+    .pagination-info {
+      @include flex-center;
+      gap: 8px;
+
+      .results-count {
+        margin-left: 16px;
+      }
+    }
+
+    .page-size-selector {
+      @include flex-center;
+      gap: 8px;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .product-management-layout {
+    .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+
+      .header-actions {
+        margin-top: 16px;
+      }
+    }
+
+    .table-footer {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+  }
+}

@@ -1,0 +1,209 @@
+// Timeline.module.scss
+$border-color: #e1e4e8;
+$header-bg: #f6f8fa;
+$primary-color: #0366d6;
+$hover-color: #f1f8ff;
+$text-color: #24292e;
+$light-text: #586069;
+$success-color: #2cbe4e;
+$sprint-color: #605ca8;
+
+.timeline-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 20px;
+  background-color: #f0f2f5;
+
+  .timeline-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .timeline-table-wrapper {
+    flex: 1;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: auto;
+
+    .timeline-table {
+      width: 100%;
+      border-collapse: collapse;
+
+      th, td {
+        padding: 12px;
+        border: 1px solid #f0f0f0;
+        text-align: left;
+      }
+
+      th {
+        background-color: #fafafa;
+        font-weight: 500;
+        padding: 16px 12px;
+        vertical-align: top;
+
+        &.period-header {
+          min-width: 180px;
+        }
+      }
+
+      .week-header, .month-header {
+        text-align: center;
+        padding: 4px;
+
+        .week-title, .month-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: #1890ff;
+          margin-bottom: 4px;
+        }
+
+        .week-dates, .month-days {
+          font-size: 12px;
+          color: #666;
+          font-weight: normal;
+        }
+      }
+
+      .timeline-row {
+        &:hover {
+          background-color: #fafafa;
+        }
+
+        .work-type-header {
+          font-weight: 500;
+          background-color: #fafafa;
+        }
+
+        .timeline-cell {
+          min-width: 200px;
+          vertical-align: top;
+        }
+      }
+    }
+  }
+
+  .work-item {
+    margin-bottom: 8px;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .work-item-title {
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .work-item-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #666;
+
+      span {
+        color: #1890ff;
+      }
+    }
+  }
+
+  .timeline-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Additional styles for specific timeline elements
+.sprint-item {
+  background-color: #e8eaf6;
+  border: 1px solid #c5cae9;
+  padding: 6px 12px;
+  border-radius: 3px;
+  text-align: center;
+  margin: 4px 0;
+  font-size: 13px;
+
+  &:hover {
+    background-color: darken(#e8eaf6, 3%);
+  }
+}
+
+.release-marker {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    width: 2px;
+    background-color: $success-color;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 0;
+  }
+
+  .release-dot {
+    width: 12px;
+    height: 12px;
+    background-color: $success-color;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    cursor: pointer;
+
+    &:hover {
+      box-shadow: 0 0 0 4px rgba($success-color, 0.3);
+    }
+  }
+}
+
+// Responsive styles
+@media (max-width: 768px) {
+  .timeline-container {
+    .timeline-toolbar {
+      flex-direction: column;
+      align-items: flex-start;
+
+      :global(.ant-input-search) {
+        width: 100%;
+        margin-bottom: 8px;
+      }
+
+      :global(.ant-space) {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+
+    .timeline-table {
+      th,
+      td {
+        white-space: nowrap;
+        padding: 6px 8px;
+      }
+    }
+  }
+}
