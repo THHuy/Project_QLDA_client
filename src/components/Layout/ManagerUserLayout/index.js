@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getUserProduct } from "~/utils/productStorage";
 import { useAuth } from "~/components/hook/useAuth/useAuth";
 import classNames from "classnames/bind";
-import styles from "./ManagerUserLayou.module.scss";
+import styles from "./ManagerUserLayout.module.scss";
 const cx = classNames.bind(styles);
 function ManagerUsersLayout({ children }) {
   const { currentUser } = useAuth();
@@ -43,7 +43,7 @@ function ManagerUsersLayout({ children }) {
     },
     {
       key: "2",
-      label: "Diretory",
+      label: "Directory",
     },
     {
       key: "3",
